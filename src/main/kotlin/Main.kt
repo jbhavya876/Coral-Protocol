@@ -21,10 +21,12 @@ import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
 import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.io.asSink
 import kotlinx.io.asSource
 import kotlinx.io.buffered
+import tools.addThreadTools
 
 /**
  * Start sse-server mcp on port 3001.
@@ -95,10 +97,14 @@ fun configureServer(): Server {
         description = "A test tool",
         inputSchema = Tool.Input()
     ) { request ->
+        delay(5000)
         CallToolResult(
-            content = listOf(TextContent("Hello, world!"))
+            content = listOf(TextContent("Hello, world!!"))
         )
     }
+
+    // Add thread-based tools
+    server.addThreadTools()
 
     // Add a resource
     server.addResource(
@@ -142,7 +148,7 @@ fun runSseMcpServerWithPlainConfiguration(port: Int): Unit = runBlocking {
     println("Starting sse server on port $port. ")
     println("Use inspector to connect to the http://localhost:$port/sse")
 
-    embeddedServer(CIO, host = "0.0.0.0", port = port) {
+    embeddedServer(CIO, host = "0.0.0.0", port = port, watchPaths = listOf("classes")) {
         install(SSE)
         routing {
             sse("/sse") {
