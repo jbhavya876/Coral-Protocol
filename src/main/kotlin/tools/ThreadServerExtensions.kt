@@ -3,6 +3,8 @@ package tools
 import io.modelcontextprotocol.kotlin.sdk.*
 import io.modelcontextprotocol.kotlin.sdk.server.Server
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import tools.Agent
 import tools.ThreadManager
 import tools.RegisterAgentInput
@@ -35,7 +37,18 @@ fun Server.addListAgentsTool() {
     addTool(
         name = "list_agents",
         description = "List all registered agents in the system",
-        inputSchema = Tool.Input()
+        inputSchema = Tool.Input(
+            properties = JsonObject(
+                mapOf(
+                    "includeDetails" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("boolean"),
+                            "description" to JsonPrimitive("Whether to include agent details in the response")
+                        )
+                    )
+                )
+            )
+        )
     ) { request ->
         try {
             val json = Json { ignoreUnknownKeys = true }
@@ -81,7 +94,25 @@ fun Server.addRegisterAgentTool() {
     addTool(
         name = "register_agent",
         description = "Register an agent in the system for discovery by other agents",
-        inputSchema = Tool.Input()
+        inputSchema = Tool.Input(
+            properties = JsonObject(
+                mapOf(
+                    "agentId" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("Unique identifier for the agent")
+                        )
+                    ),
+                    "agentName" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("Display name for the agent")
+                        )
+                    )
+                )
+            ),
+            required = listOf("agentId", "agentName")
+        )
     ) { request ->
         try {
             val json = Json { ignoreUnknownKeys = true }
@@ -113,7 +144,36 @@ fun Server.addCreateThreadTool() {
     addTool(
         name = "create_thread",
         description = "Create a new thread with a list of participants",
-        inputSchema = Tool.Input()
+        inputSchema = Tool.Input(
+            properties = JsonObject(
+                mapOf(
+                    "threadName" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("Name of the thread")
+                        )
+                    ),
+                    "creatorId" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("ID of the agent creating the thread")
+                        )
+                    ),
+                    "participantIds" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("array"),
+                            "description" to JsonPrimitive("List of agent IDs to include as participants"),
+                            "items" to JsonObject(
+                                mapOf(
+                                    "type" to JsonPrimitive("string")
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+            required = listOf("threadName", "creatorId")
+        )
     ) { request ->
         try {
             val json = Json { ignoreUnknownKeys = true }
@@ -158,7 +218,25 @@ fun Server.addAddParticipantTool() {
     addTool(
         name = "add_participant",
         description = "Add a participant to a thread",
-        inputSchema = Tool.Input()
+        inputSchema = Tool.Input(
+            properties = JsonObject(
+                mapOf(
+                    "threadId" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("ID of the thread")
+                        )
+                    ),
+                    "participantId" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("ID of the agent to add")
+                        )
+                    )
+                )
+            ),
+            required = listOf("threadId", "participantId")
+        )
     ) { request ->
         try {
             val json = Json { ignoreUnknownKeys = true }
@@ -192,7 +270,25 @@ fun Server.addRemoveParticipantTool() {
     addTool(
         name = "remove_participant",
         description = "Remove a participant from a thread",
-        inputSchema = Tool.Input()
+        inputSchema = Tool.Input(
+            properties = JsonObject(
+                mapOf(
+                    "threadId" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("ID of the thread")
+                        )
+                    ),
+                    "participantId" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("ID of the agent to remove")
+                        )
+                    )
+                )
+            ),
+            required = listOf("threadId", "participantId")
+        )
     ) { request ->
         try {
             val json = Json { ignoreUnknownKeys = true }
@@ -226,7 +322,25 @@ fun Server.addCloseThreadTool() {
     addTool(
         name = "close_thread",
         description = "Close a thread with a summary",
-        inputSchema = Tool.Input()
+        inputSchema = Tool.Input(
+            properties = JsonObject(
+                mapOf(
+                    "threadId" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("ID of the thread to close")
+                        )
+                    ),
+                    "summary" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("Summary of the thread")
+                        )
+                    )
+                )
+            ),
+            required = listOf("threadId", "summary")
+        )
     ) { request ->
         try {
             val json = Json { ignoreUnknownKeys = true }
@@ -260,7 +374,42 @@ fun Server.addSendMessageTool() {
     addTool(
         name = "send_message",
         description = "Send a message to a thread",
-        inputSchema = Tool.Input()
+        inputSchema = Tool.Input(
+            properties = JsonObject(
+                mapOf(
+                    "threadId" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("ID of the thread")
+                        )
+                    ),
+                    "senderId" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("ID of the agent sending the message")
+                        )
+                    ),
+                    "content" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("Content of the message")
+                        )
+                    ),
+                    "mentions" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("array"),
+                            "description" to JsonPrimitive("List of agent IDs to mention in the message"),
+                            "items" to JsonObject(
+                                mapOf(
+                                    "type" to JsonPrimitive("string")
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+            required = listOf("threadId", "senderId", "content")
+        )
     ) { request ->
         try {
             val json = Json { ignoreUnknownKeys = true }
@@ -307,7 +456,25 @@ fun Server.addWaitForMentionsTool() {
     addTool(
         name = "wait_for_mentions",
         description = "Wait for new messages mentioning an agent, with timeout",
-        inputSchema = Tool.Input()
+        inputSchema = Tool.Input(
+            properties = JsonObject(
+                mapOf(
+                    "agentId" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("ID of the agent to wait for mentions")
+                        )
+                    ),
+                    "timeoutMs" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("number"),
+                            "description" to JsonPrimitive("Timeout in milliseconds (default: 30000)")
+                        )
+                    )
+                )
+            ),
+            required = listOf("agentId")
+        )
     ) { request ->
         try {
             val json = Json { ignoreUnknownKeys = true }
