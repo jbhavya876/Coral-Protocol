@@ -69,56 +69,8 @@ fun configureServer(): Server {
         }
     )
 
-    server.addPrompt(
-        name = "Kotlin Developer",
-        description = "Develop small kotlin applications",
-        arguments = listOf(
-            PromptArgument(
-                name = "Project Name",
-                description = "Project name for the new project",
-                required = true
-            )
-        )
-    ) { request ->
-        GetPromptResult(
-            "Description for ${request.name}",
-            messages = listOf(
-                PromptMessage(
-                    role = Role.user,
-                    content = TextContent("Develop a kotlin project named <name>${request.arguments?.get("Project Name")}</name>")
-                )
-            )
-        )
-    }
-
-    // Add a tool
-    server.addTool(
-        name = "kotlin-sdk-tool",
-        description = "A test tool",
-        inputSchema = Tool.Input()
-    ) { request ->
-        delay(5000)
-        CallToolResult(
-            content = listOf(TextContent("Hello, world!!"))
-        )
-    }
-
     // Add thread-based tools
     server.addThreadTools()
-
-    // Add a resource
-    server.addResource(
-        uri = "https://search.com/",
-        name = "Web Search",
-        description = "Web search engine",
-        mimeType = "text/html"
-    ) { request ->
-        ReadResourceResult(
-            contents = listOf(
-                TextResourceContents("Placeholder content for ${request.uri}", request.uri, "text/html")
-            )
-        )
-    }
 
     return server
 }
