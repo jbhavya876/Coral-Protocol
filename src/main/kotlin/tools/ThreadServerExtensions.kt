@@ -12,18 +12,66 @@ import tools.RemoveParticipantInput
 import tools.CloseThreadInput
 import tools.SendMessageInput
 import tools.WaitForMentionsInput
+import tools.ListAgentsInput
 
 /**
  * Extension function to add all thread-based tools to a server.
  */
 fun Server.addThreadTools() {
     addRegisterAgentTool()
+    addListAgentsTool()
     addCreateThreadTool()
     addAddParticipantTool()
     addRemoveParticipantTool()
     addCloseThreadTool()
     addSendMessageTool()
     addWaitForMentionsTool()
+}
+
+/**
+ * Extension function to add the list agents tool to a server.
+ */
+fun Server.addListAgentsTool() {
+    addTool(
+        name = "list_agents",
+        description = "List all registered agents in the system",
+        inputSchema = Tool.Input()
+    ) { request ->
+        try {
+            val json = Json { ignoreUnknownKeys = true }
+            val input = json.decodeFromString<ListAgentsInput>(request.arguments.toString())
+            val agents = ThreadManager.getAllAgents()
+
+            if (agents.isNotEmpty()) {
+                val agentsList = if (input.includeDetails) {
+                    agents.joinToString("\n") { agent -> 
+                        "ID: ${agent.id}, Name: ${agent.name}" 
+                    }
+                } else {
+                    agents.joinToString(", ") { agent -> agent.id }
+                }
+
+                CallToolResult(
+                    content = listOf(
+                        TextContent(
+                            """
+                            Registered Agents (${agents.size}):
+                            $agentsList
+                            """.trimIndent()
+                        )
+                    )
+                )
+            } else {
+                CallToolResult(
+                    content = listOf(TextContent("No agents are currently registered in the system"))
+                )
+            }
+        } catch (e: Exception) {
+            CallToolResult(
+                content = listOf(TextContent("Error listing agents: ${e.message}"))
+            )
+        }
+    }
 }
 
 /**

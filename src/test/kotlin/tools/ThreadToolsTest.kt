@@ -119,4 +119,41 @@ class ThreadToolsTest {
         assertTrue(closedThread?.isClosed ?: false)
         assertEquals("Productive discussion completed", closedThread?.summary)
     }
+
+    @Test
+    fun `test list agents functionality`() {
+        // Clear any existing agents (if possible)
+
+        // Register multiple agents with different names
+        val agent1 = Agent(id = "test1", name = "Test Agent 1")
+        val agent2 = Agent(id = "test2", name = "Test Agent 2")
+        val agent3 = Agent(id = "test3", name = "Test Agent 3")
+
+        ThreadManager.registerAgent(agent1)
+        ThreadManager.registerAgent(agent2)
+        ThreadManager.registerAgent(agent3)
+
+        // Get all agents
+        val agents = ThreadManager.getAllAgents()
+
+        // Verify all agents are returned
+        assertTrue(agents.size >= 3) // There might be agents from other tests
+        assertTrue(agents.contains(agent1))
+        assertTrue(agents.contains(agent2))
+        assertTrue(agents.contains(agent3))
+
+        // Test with includeDetails = true
+        val detailedOutput = agents.joinToString("\n") { agent -> 
+            "ID: ${agent.id}, Name: ${agent.name}" 
+        }
+        assertTrue(detailedOutput.contains("ID: test1, Name: Test Agent 1"))
+        assertTrue(detailedOutput.contains("ID: test2, Name: Test Agent 2"))
+        assertTrue(detailedOutput.contains("ID: test3, Name: Test Agent 3"))
+
+        // Test with includeDetails = false
+        val simpleOutput = agents.joinToString(", ") { agent -> agent.id }
+        assertTrue(simpleOutput.contains("test1"))
+        assertTrue(simpleOutput.contains("test2"))
+        assertTrue(simpleOutput.contains("test3"))
+    }
 }

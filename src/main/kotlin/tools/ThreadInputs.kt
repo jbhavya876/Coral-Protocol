@@ -67,3 +67,11 @@ data class WaitForMentionsInput(
     val agentId: String,
     val timeoutMs: Long = 30000 // Default timeout of 30 seconds
 )
+
+/**
+ * Tool for listing all registered agents.
+ */
+@Serializable
+data class ListAgentsInput(
+    val includeDetails: Boolean = true // Whether to include agent details in the response
+)
