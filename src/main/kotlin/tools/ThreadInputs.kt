@@ -8,7 +8,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RegisterAgentInput(
     val agentId: String,
-    val agentName: String
+    val agentName: String,
+    val description: String = "" // Default empty string for backward compatibility
 )
 
 /**

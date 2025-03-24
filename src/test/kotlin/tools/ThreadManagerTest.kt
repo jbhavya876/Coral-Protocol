@@ -12,7 +12,8 @@ class ThreadManagerTest {
 
     @BeforeEach
     fun setup() {
-        // Clear any existing data by creating new agents and threads for each test
+        // Clear any existing data before each test
+        ThreadManager.clearAll()
     }
 
     @Test
@@ -28,6 +29,19 @@ class ThreadManagerTest {
         // Try to register the same agent again
         val duplicateSuccess = ThreadManager.registerAgent(agent)
         assertFalse(duplicateSuccess)
+    }
+
+    @Test
+    fun `test agent registration with description`() {
+        // Register a new agent with description
+        val agent = Agent(id = "agent2", name = "Test Agent 2", description = "This agent is responsible for testing")
+        val success = ThreadManager.registerAgent(agent)
+
+        // Verify agent was registered with description
+        assertTrue(success)
+        val retrievedAgent = ThreadManager.getAgent("agent2")
+        assertEquals(agent, retrievedAgent)
+        assertEquals("This agent is responsible for testing", retrievedAgent?.description)
     }
 
     @Test

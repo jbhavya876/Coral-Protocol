@@ -12,7 +12,8 @@ class ThreadToolsTest {
 
     @BeforeEach
     fun setup() {
-        // Clear any existing data by creating new agents and threads for each test
+        // Clear any existing data before each test
+        ThreadManager.clearAll()
     }
 
     @Test
@@ -124,10 +125,10 @@ class ThreadToolsTest {
     fun `test list agents functionality`() {
         // Clear any existing agents (if possible)
 
-        // Register multiple agents with different names
+        // Register multiple agents with different names and descriptions
         val agent1 = Agent(id = "test1", name = "Test Agent 1")
-        val agent2 = Agent(id = "test2", name = "Test Agent 2")
-        val agent3 = Agent(id = "test3", name = "Test Agent 3")
+        val agent2 = Agent(id = "test2", name = "Test Agent 2", description = "Agent for testing")
+        val agent3 = Agent(id = "test3", name = "Test Agent 3", description = "Another test agent")
 
         ThreadManager.registerAgent(agent1)
         ThreadManager.registerAgent(agent2)
@@ -144,11 +145,16 @@ class ThreadToolsTest {
 
         // Test with includeDetails = true
         val detailedOutput = agents.joinToString("\n") { agent -> 
-            "ID: ${agent.id}, Name: ${agent.name}" 
+            val description = if (agent.description.isNotEmpty()) {
+                ", Description: ${agent.description}"
+            } else {
+                ""
+            }
+            "ID: ${agent.id}, Name: ${agent.name}${description}" 
         }
         assertTrue(detailedOutput.contains("ID: test1, Name: Test Agent 1"))
-        assertTrue(detailedOutput.contains("ID: test2, Name: Test Agent 2"))
-        assertTrue(detailedOutput.contains("ID: test3, Name: Test Agent 3"))
+        assertTrue(detailedOutput.contains("ID: test2, Name: Test Agent 2, Description: Agent for testing"))
+        assertTrue(detailedOutput.contains("ID: test3, Name: Test Agent 3, Description: Another test agent"))
 
         // Test with includeDetails = false
         val simpleOutput = agents.joinToString(", ") { agent -> agent.id }

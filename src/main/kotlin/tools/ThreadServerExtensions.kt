@@ -58,7 +58,12 @@ fun Server.addListAgentsTool() {
             if (agents.isNotEmpty()) {
                 val agentsList = if (input.includeDetails) {
                     agents.joinToString("\n") { agent -> 
-                        "ID: ${agent.id}, Name: ${agent.name}" 
+                        val description = if (agent.description.isNotEmpty()) {
+                            ", Description: ${agent.description}"
+                        } else {
+                            ""
+                        }
+                        "ID: ${agent.id}, Name: ${agent.name}${description}" 
                     }
                 } else {
                     agents.joinToString(", ") { agent -> agent.id }
@@ -108,6 +113,12 @@ fun Server.addRegisterAgentTool() {
                             "type" to JsonPrimitive("string"),
                             "description" to JsonPrimitive("Display name for the agent")
                         )
+                    ),
+                    "description" to JsonObject(
+                        mapOf(
+                            "type" to JsonPrimitive("string"),
+                            "description" to JsonPrimitive("Description of the agent's responsibilities")
+                        )
                     )
                 )
             ),
@@ -117,12 +128,17 @@ fun Server.addRegisterAgentTool() {
         try {
             val json = Json { ignoreUnknownKeys = true }
             val input = json.decodeFromString<RegisterAgentInput>(request.arguments.toString())
-            val agent = Agent(id = input.agentId, name = input.agentName)
+            val agent = Agent(id = input.agentId, name = input.agentName, description = input.description)
             val success = ThreadManager.registerAgent(agent)
 
             if (success) {
+                val descriptionInfo = if (agent.description.isNotEmpty()) {
+                    "\nDescription: ${agent.description}"
+                } else {
+                    ""
+                }
                 CallToolResult(
-                    content = listOf(TextContent("Agent registered successfully: ${agent.name} (${agent.id})"))
+                    content = listOf(TextContent("Agent registered successfully: ${agent.name} (${agent.id})${descriptionInfo}"))
                 )
             } else {
                 CallToolResult(
