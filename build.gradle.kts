@@ -17,8 +17,8 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("io.modelcontextprotocol:kotlin-sdk:0.3.0")
-    implementation("org.slf4j:slf4j-nop:2.0.9")
+    implementation("io.modelcontextprotocol:kotlin-sdk:0.4.0")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
 }
 
 tasks.test {

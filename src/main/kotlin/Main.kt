@@ -26,6 +26,8 @@ import tools.addThreadTools
  * - "--sse-server <port>": Runs an SSE MCP server with a plain configuration.
  */
 fun main(args: Array<String>) {
+    System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "TRACE");
+
     val command = args.firstOrNull() ?: "--sse-server-ktor"
     val port = args.getOrNull(1)?.toIntOrNull() ?: 3001
     when (command) {
@@ -53,9 +55,6 @@ fun configureServer(): Server {
                 tools = ServerCapabilities.Tools(listChanged = true),
             )
         ),
-        onCloseCallback = {
-            def.complete(Unit)
-        }
     )
 
     // Add thread-based tools
@@ -76,9 +75,6 @@ fun runMcpServerUsingStdio() {
     runBlocking {
         server.connect(transport)
         val done = Job()
-        server.onCloseCallback = {
-            done.complete()
-        }
         done.join()
         println("Server closed")
     }
@@ -90,21 +86,16 @@ fun runSseMcpServerWithPlainConfiguration(port: Int): Unit = runBlocking {
     println("Use inspector to connect to the http://localhost:$port/sse")
 
     embeddedServer(CIO, host = "0.0.0.0", port = port, watchPaths = listOf("classes")) {
+
         install(SSE)
         routing {
             sse("/sse") {
                 val transport = SSEServerTransport("/message", this)
                 val server = configureServer()
-
                 // For SSE, you can also add prompts/tools/resources if needed:
                 // server.addTool(...), server.addPrompt(...), server.addResource(...)
 
                 servers[transport.sessionId] = server
-
-                server.onCloseCallback = {
-                    println("Server closed")
-                    servers.remove(transport.sessionId)
-                }
 
                 server.connect(transport)
             }
@@ -136,8 +127,8 @@ fun runSseMcpServerUsingKtorPlugin(port: Int): Unit = runBlocking {
     println("Use inspector to connect to the http://localhost:$port/sse")
 
     embeddedServer(CIO, host = "0.0.0.0", port = port) {
-        MCP {
-            return@MCP configureServer()
+        mcp {
+            configureServer()
         }
     }.start(wait = true)
 }
