@@ -98,14 +98,14 @@ fun Server.addListAgentsTool() {
 fun Server.addRegisterAgentTool() {
     addTool(
         name = "register_agent",
-        description = "Register an agent in the system for discovery by other agents",
+        description = "Register an agent in the system for discovery by other agents. Only register yourself, and make sure to register yourself once before using other tools.",
         inputSchema = Tool.Input(
             properties = JsonObject(
                 mapOf(
                     "agentId" to JsonObject(
                         mapOf(
                             "type" to JsonPrimitive("string"),
-                            "description" to JsonPrimitive("Unique identifier for the agent")
+                            "description" to JsonPrimitive("Unique, descriptive identifier for the agent. DO NOT CALL YOURSELF SOMETHING GENERIC LIKE 'ASSISTANT' OR 'AGENT'.")
                         )
                     ),
                     "agentName" to JsonObject(
@@ -137,9 +137,11 @@ fun Server.addRegisterAgentTool() {
                 } else {
                     ""
                 }
+                println("Agent registered successfully: ${agent.name} (${agent.id})${descriptionInfo}")
                 CallToolResult(
                     content = listOf(TextContent("Agent registered successfully: ${agent.name} (${agent.id})${descriptionInfo}"))
                 )
+
             } else {
                 CallToolResult(
                     content = listOf(TextContent("Failed to register agent: Agent ID already exists"))
@@ -495,11 +497,11 @@ fun Server.addWaitForMentionsTool() {
         try {
             val json = Json { ignoreUnknownKeys = true }
             val input = json.decodeFromString<WaitForMentionsInput>(request.arguments.toString())
+            println("Waiting for mentions for agent ${input.agentId} with timeout ${input.timeoutMs}ms")
             val messages = ThreadManager.waitForMentions(
                 agentId = input.agentId,
                 timeoutMs = input.timeoutMs
             )
-
             if (messages.isNotEmpty()) {
                 // Format messages in XML-like structure
                 val formattedMessages = ThreadTools.formatMessagesAsXml(messages)

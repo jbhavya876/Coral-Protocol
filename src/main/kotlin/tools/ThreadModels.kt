@@ -159,6 +159,7 @@ object ThreadManager {
 
     // Send a message to a thread
     fun sendMessage(threadId: String, senderId: String, content: String, mentions: List<String> = emptyList()): Message? {
+        println("($threadId) $senderId: $content \n(mentions^: $mentions)")
         val thread = threads[threadId] ?: return null
         val sender = agents[senderId] ?: return null
 

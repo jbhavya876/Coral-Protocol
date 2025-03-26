@@ -26,7 +26,7 @@ import tools.addThreadTools
  * - "--sse-server <port>": Runs an SSE MCP server with a plain configuration.
  */
 fun main(args: Array<String>) {
-    System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "TRACE");
+//    System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "TRACE");
 
     val command = args.firstOrNull() ?: "--sse-server-ktor"
     val port = args.getOrNull(1)?.toIntOrNull() ?: 3001
