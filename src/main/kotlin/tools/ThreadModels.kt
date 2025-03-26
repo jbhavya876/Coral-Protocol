@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.math.abs
 
 /**
  * Represents an agent in the system.
@@ -157,9 +158,39 @@ object ThreadManager {
         return true
     }
 
+    // ANSI color codes for terminal output
+    private val ANSI_COLORS = arrayOf(
+        "\u001B[31m", // Red
+        "\u001B[32m", // Green
+        "\u001B[33m", // Yellow
+        "\u001B[34m", // Blue
+        "\u001B[35m", // Magenta
+        "\u001B[36m", // Cyan
+        "\u001B[91m", // Bright Red
+        "\u001B[92m", // Bright Green
+        "\u001B[93m", // Bright Yellow
+        "\u001B[94m", // Bright Blue
+        "\u001B[95m", // Bright Magenta
+        "\u001B[96m"  // Bright Cyan
+    )
+    private val ANSI_RESET = "\u001B[0m"
+
+    // Get color based on senderId hash
+    private fun getColorForSenderId(senderId: String): String {
+        // Calculate a simple hash of the senderId
+        val hash = abs(senderId.hashCode())
+        // Use the hash to select a color from the array
+        return ANSI_COLORS[hash % ANSI_COLORS.size]
+    }
+
     // Send a message to a thread
     fun sendMessage(threadId: String, senderId: String, content: String, mentions: List<String> = emptyList()): Message? {
-        println("($threadId) $senderId: $content \n(mentions^: $mentions)")
+        // Get color based on senderId
+        val color = getColorForSenderId(senderId)
+
+        // Print the message with color for the content
+        println("($threadId) $senderId: $color$content$ANSI_RESET \n(mentions^: $mentions)")
+
         val thread = threads[threadId] ?: return null
         val sender = agents[senderId] ?: return null
 

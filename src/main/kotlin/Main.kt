@@ -126,7 +126,7 @@ fun runSseMcpServerUsingKtorPlugin(port: Int): Unit = runBlocking {
     println("Starting sse server on port $port")
     println("Use inspector to connect to the http://localhost:$port/sse")
 
-    embeddedServer(CIO, host = "0.0.0.0", port = port) {
+    embeddedServer(CIO, host = "0.0.0.0", port = port,) {
         mcp {
             configureServer()
         }
