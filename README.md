@@ -1,3 +1,4 @@
+
 # Coral Server - Agent Fuzzy A2A (Agent to Agent) Communication MCP Tools
 
 An implementation of the Coral protocol that acts as an MCP server providing tools for agents to communicate with each other.
@@ -121,4 +122,8 @@ Click Clone.
 
 ### Running from IntelliJ IDEA
 You can click the play button next to the main method in the `Main.kt` file to run the server directly from IntelliJ IDEA.
+
+=======
+# Coral-Protocol
+Coral Protocol Implementation 
 
