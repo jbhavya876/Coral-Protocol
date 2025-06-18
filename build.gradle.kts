@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.1.20"
-    kotlin("plugin.serialization") version "2.1.20"
+    kotlin("jvm") version "1.9.24"
+    kotlin("plugin.serialization") version "1.9.24"
     application
 }
 
@@ -24,6 +24,17 @@ repositories {
 
 
 dependencies {
+    implementation("io.ktor:ktor-client-core:3.0.2")
+    implementation("io.ktor:ktor-client-cio:3.0.2")
+    implementation("io.ktor:ktor-client-content-negotiation:3.0.2")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.2")
+
+    // Kotlinx Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+
+    // Logging (if not already included)
+    implementation("io.github.oshai:kotlin-logging:5.1.0")
+    implementation(kotlin("stdlib"))
     testImplementation(kotlin("test"))
     implementation("io.modelcontextprotocol:kotlin-sdk:0.5.0")
     implementation("org.slf4j:slf4j-simple:2.0.9")
@@ -69,11 +80,6 @@ dependencies {
 //    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
 //    testImplementation("io.kotest:kotest-property:$kotestVersion")
 
-    // Ktor client dependencies
-    implementation("io.ktor:ktor-client-logging")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-client-plugins")
 
     // Ktor server dependencies
     implementation("io.ktor:ktor-server-core")

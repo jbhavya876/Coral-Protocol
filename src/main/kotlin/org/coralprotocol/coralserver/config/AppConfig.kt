@@ -24,7 +24,8 @@ data class ApplicationConfig(
     val id: String,
     val name: String,
     val description: String = "",
-    val privacyKeys: List<String> = emptyList()
+    val privacyKeys: List<String> = emptyList(),
+    val mcpEndpoint: String? = null
 )
 
 /**

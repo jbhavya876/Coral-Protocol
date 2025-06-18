@@ -56,7 +56,8 @@ object AppConfigLoader {
                         id = "default-app",
                         name = "Default Application",
                         description = "Default application (fallback)",
-                        privacyKeys = listOf("default-key", "public")
+                        privacyKeys = listOf("default-key", "public"),
+                        mcpEndpoint: String? = null
                     )
                 )
             )

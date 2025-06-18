@@ -14,13 +14,17 @@ class E2EResourceTest {
     @OptIn(DelicateCoroutinesApi::class)
     @BeforeEach
     fun setup() {
-        server.setup()
+        println("Setting up test server on port $port")
+        this.server = TestCoralServer(port = port, devmode = true).apply { setup() }
+        requireNotNull(server.server) { "server.server should be initialized after setup()" }
     }
 
     @Test
     fun testCreateThreadAndPostMessage(): Unit = runBlocking {
         var allAssertsCompleted = false
-        createSessionWithConnectedAgents(server.server!!, sessionId =  "test", privacyKey = "aaa", applicationId = "aaa", noAgentsOptional = true) {
+        println("server: $server, server.server: ${server.server}")
+        val srv = server.server ?: error("TestCoralServer.server is not initialized")
+        createSessionWithConnectedAgents(srv, sessionId =  "test", privacyKey = "aaa", applicationId = "aaa", noAgentsOptional = true) {
             val agent1 = agent("testAgent1", "testAgent1")
             val agent2 = agent("testAgent2", "testAgent2")
 

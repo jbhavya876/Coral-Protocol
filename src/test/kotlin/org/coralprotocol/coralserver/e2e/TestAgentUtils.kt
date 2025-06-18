@@ -238,12 +238,22 @@ class TestCoralServer(
             sessionManager = sessionManager,
             appConfig = AppConfig()
         )
+
+        val deferred = CompletableDeferred<Unit>()
+
         GlobalScope.launch(serverContext) {
             server!!.start()
+            deferred.complete(Unit) // Wait until server is actually started
         }
+
+        runBlocking {
+            deferred.await() // Ensure server is started before test continues
+        }
+
         patchMcpJavaContentType()
         patchMcpJavaEndpointResolution()
     }
+
 }
 
 

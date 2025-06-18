@@ -1,5 +1,12 @@
 package org.coralprotocol.coralserver.mcptools
 
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.json.*
+
+
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.modelcontextprotocol.kotlin.sdk.CallToolRequest
 import io.modelcontextprotocol.kotlin.sdk.CallToolResult
@@ -52,37 +59,37 @@ private suspend fun CoralAgentIndividualMcp.handleSendMessage(request: CallToolR
     try {
         val json = Json { ignoreUnknownKeys = true }
         val input = json.decodeFromString<SendMessageInput>(request.arguments.toString())
-        val message = coralAgentGraphSession.sendMessage(
-            threadId = input.threadId,
-            senderId = this.connectedAgentId,
-            content = input.content,
-            mentions = input.mentions
+
+        val mcpPayload = buildJsonObject {
+            put("threadId", input.threadId)
+            put("content", input.content)
+            put("mentions", Json.encodeToJsonElement(input.mentions))
+            put("senderId", this@handleSendMessage.connectedAgentId)
+        }
+
+        val client = HttpClient(CIO) {
+            install(ContentNegotiation) {
+                json(Json { ignoreUnknownKeys = true })
+            }
+        }
+
+        val mcpUrl = AppConfigLoader.getApplication("default-app")?.mcpEndpoint
+            ?: "http://127.0.0.1:6001/agent"
+
+        val response: String = client.post(mcpUrl) {
+            contentType(io.ktor.http.ContentType.Application.Json)
+            setBody(mcpPayload)
+        }
+
+        val responseJson = Json.parseToJsonElement(response).jsonObject
+        val content = responseJson["content"]?.jsonPrimitive?.content ?: "No response"
+
+        logger.info { "Message sent to MCP successfully. Response: $content" }
+
+        return CallToolResult(
+            content = listOf(TextContent(content))
         )
 
-        if (message != null) {
-            logger.info { message }
-
-            return CallToolResult(
-                content = listOf(
-                    TextContent(
-                        """
-                        Message sent successfully:
-                        ID: ${message.id}
-                        Thread: ${message.thread.id}
-                        Sender: ${message.sender.id}
-                        Content: ${message.content}
-                        Mentions: ${message.mentions.joinToString(", ")}
-                        """.trimIndent()
-                    )
-                )
-            )
-        } else {
-            val errorMessage = "Failed to send message: Thread not found, sender not found, thread is closed, or sender is not a participant"
-            logger.error { errorMessage }
-            return CallToolResult(
-                content = listOf(TextContent(errorMessage))
-            )
-        }
     } catch (e: Exception) {
         val errorMessage = "Error sending message: ${e.message}"
         logger.error(e) { errorMessage }
@@ -91,3 +98,5 @@ private suspend fun CoralAgentIndividualMcp.handleSendMessage(request: CallToolR
         )
     }
 }
+
+
